@@ -12,8 +12,8 @@
       <div class="editor">
         <canvas id="pixel-canvas" width=512 height=512></canvas>
       </div>
-      <div class="sidebar-right">
-        
+      <div class="sidebar-right" style="padding: 15px;">
+        <layers></layers>
       </div>
     </div>
     <div class="footer">
@@ -25,12 +25,14 @@
 
 <script>
 import Swatches from 'vue-swatches'
+import Layers from './Layers.vue';
 // Import the styles too, globally
 
 export default {
   name: "default",
   components: {
-    Swatches
+    Swatches,
+    Layers
   },
   data() {
     return {

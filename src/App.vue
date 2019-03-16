@@ -32,4 +32,8 @@ body {
   color: #2c3e50;
   height: 100%;
 }
+
+button {
+  cursor: pointer;
+}
 </style>
