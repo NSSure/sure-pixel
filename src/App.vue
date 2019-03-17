@@ -11,6 +11,9 @@ export default {
   name: "app",
   components: {
     Default
+  },
+  created() {
+    this.$store.dispatch('addSpriteFrame');
   }
 };
 </script>
@@ -35,5 +38,11 @@ body {
 
 button {
   cursor: pointer;
+  background-color: #DDDDDD;
+  border: none;
+}
+
+.active-outline {
+  outline: 5px solid lightskyblue;
 }
 </style>

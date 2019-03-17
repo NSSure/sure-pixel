@@ -132,6 +132,8 @@ export default {
   list-style-type: none;
   padding: 0;
   margin: 0;
+  max-height: 250px;
+  overflow-y: auto;
 }
 
 .layers-panel > .layers li {
