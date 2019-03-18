@@ -3,7 +3,7 @@
     <div class="content-area">
       <div class="sidebar-left">
         <toolbox></toolbox>
-        <swatches v-model="fillColor" colors="text-advanced" show-fallback popover-to="right" swatch-size="16"></swatches>
+        <verte style="padding-bottom: 15px;" v-model="fillColor" picker="square" model="rgb" menuPosition="center"></verte>
       </div>
       <div class="editor">
         <base-canvas canvas-id="pixel-editor" width="512" height="512" :fill-color="fillColor"></base-canvas>
@@ -23,7 +23,6 @@ import Toolbox from './Toolbox.vue'
 import Layers from './Layers.vue'
 import Frames from './Frames.vue'
 import BaseCanvas from './canvas/BaseCanvas'
-import Swatches from 'vue-swatches'
 
 export default {
   name: "default",
@@ -31,8 +30,7 @@ export default {
     Toolbox,
     Layers,
     Frames,
-    BaseCanvas,
-    Swatches
+    BaseCanvas
   },
   data() {
     return {
@@ -59,11 +57,11 @@ export default {
 .default > .content-area > .sidebar-left {
   display: flex;
   flex-direction: column;
-  width: 200px;
   background-color: #f7f7f7;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,.1);
   border-right: 1px solid silver;
-  padding: 15px;
+  /* padding: 15px; */
+  width: 64px;
 }
 
 .default > .content-area > .editor {

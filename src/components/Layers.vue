@@ -104,6 +104,7 @@ export default {
 <style lang="css" scoped>
 .layers-panel {
   border: 1px solid silver;
+  flex: 1;
 }
 
 .layers-panel > .header {

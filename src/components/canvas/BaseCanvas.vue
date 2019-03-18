@@ -27,7 +27,6 @@ export default {
         return {
             canvas: {},
             context: {},
-            isDrawing: false,
             initialPosition: { x: null, y: null },
             currentPosition: { x: null, y: null },
             gridDimensions: { width: 512, height: 512, rows: 16, columns: 16 },
@@ -43,13 +42,32 @@ export default {
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         if (!this.displayOnly) {
-            this.canvas.addEventListener('click', this.beginDrawing);
+            this.canvas.addEventListener('click', this.canvasClicked);
+            this.canvas.onmousemove = this.canvasHovered;
         }
         
         this.draw();
     },
     methods: {
-        drawGrid() {
+        draw(event) {
+            this.drawBackgroundGrid();
+
+            for (let i = 0; i < this.dirtySquares.length; i++) {
+                let dirtySquare = this.dirtySquares[i];
+                this.context.fillStyle = this.fillColor;
+                this.context.clearRect(dirtySquare.column * 16, dirtySquare.row * 16, 16, 16);
+                this.context.beginPath();
+                this.context.fillRect(dirtySquare.column * 16, dirtySquare.row * 16, 16, 16);
+                this.context.closePath();
+
+                // Move the dirty square to the actual sprite data array.
+                this.spriteData.push(dirtySquare);
+            }
+
+            this.dirtySquares = [];
+            requestAnimationFrame(this.draw);
+        },
+        drawBackgroundGrid() {
             for(let i = 0; i < 32; i++) {
                 for (let ii = 0; ii < 32; ii++) {
                     if (i % 2 === 0) {
@@ -81,41 +99,27 @@ export default {
                 }
             }
         },
+        canvasClicked(event) {
+            this.initialPosition = this.getMouseCoordinates(event);
+            this.dirtySquare = this.getGridPositionByCoordinates(this.initialPosition);
+            this.dirtySquare.fillColor = this.fillColor;
+            this.dirtySquares.push(this.dirtySquare);
+        },
+        canvasHovered(event) {
+            console.log(event);
+            if (event) {
+                let mouseCoordinates = this.getMouseCoordinates(event);
+                this.context.fillStyle = '#C0C0C0';
+                this.context.fillRect(mouseCoordinates.x, mouseCoordinates.y, 16, 16);
+            }
+        },
         getGridPositionByCoordinates(mouseCoordinates) {
             // 16 is the px dimensions of each grid square.
             let c = Math.floor(mouseCoordinates.x / 16);
             let r = Math.floor(mouseCoordinates.y / 16);
             return { row: r, column: c };
         },
-        beginDrawing(event) {
-            this.initialPosition = this.getMouseCoordinates();
-            this.dirtySquare = this.getGridPositionByCoordinates(this.initialPosition);
-            this.dirtySquare.fillColor = this.fillColor;
-            this.dirtySquares.push(this.dirtySquare);
-            this.isDrawing = true;
-        },
-        endDrawing() {
-            this.isDrawing = false;
-        },
-        draw(event) {
-            this.drawGrid();
-
-            for (let i = 0; i < this.dirtySquares.length; i++) {
-                let dirtySquare = this.dirtySquares[i];
-                this.context.fillStyle = this.fillColor;
-                this.context.clearRect(dirtySquare.column * 16, dirtySquare.row * 16, 16, 16);
-                this.context.beginPath();
-                this.context.fillRect(dirtySquare.column * 16, dirtySquare.row * 16, 16, 16);
-                this.context.closePath();
-
-                // Move the dirty square to the actual sprite data array.
-                this.spriteData.push(dirtySquare);
-            }
-
-            this.dirtySquares = [];
-            requestAnimationFrame(this.draw);
-        },
-        getMouseCoordinates() {
+        getMouseCoordinates(event) {
             let rect = this.canvas.getBoundingClientRect();
             let position = { x: null, y: null };
             position.x = event.clientX - rect.left;
@@ -125,18 +129,18 @@ export default {
         clearCanvas() {
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.context.fillStyle = '#e7e7e7';
-        },
-        drawCircle() {
-            this.currentPosition = this.getMouseCoordinates();
-            let xDiff = this.currentPosition.x - this.initialPosition.x;
-            let yDiff = this.currentPosition.y - this.initialPosition.y;
-            let hypotenuse = Math.hypot(xDiff, yDiff);
-            let radius = hypotenuse / 2;
-            this.context.beginPath();
-            this.context.arc(this.currentPosition.x / 2, this.currentPosition.y /2, radius, 0, 2 * Math.PI, true);
-            this.context.stroke();
-            this.context.closePath();
         }
+        // drawCircle() {
+        //     this.currentPosition = this.getMouseCoordinates();
+        //     let xDiff = this.currentPosition.x - this.initialPosition.x;
+        //     let yDiff = this.currentPosition.y - this.initialPosition.y;
+        //     let hypotenuse = Math.hypot(xDiff, yDiff);
+        //     let radius = hypotenuse / 2;
+        //     this.context.beginPath();
+        //     this.context.arc(this.currentPosition.x / 2, this.currentPosition.y /2, radius, 0, 2 * Math.PI, true);
+        //     this.context.stroke();
+        //     this.context.closePath();
+        // }
     }
 };
 </script>
