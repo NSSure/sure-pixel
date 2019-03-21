@@ -6,7 +6,8 @@
         <verte style="padding-bottom: 15px;" v-model="fillColor" picker="square" model="rgb" menuPosition="center"></verte>
       </div>
       <div class="editor">
-        <base-canvas canvas-id="pixel-editor" width="512" height="512" :fill-color="fillColor"></base-canvas>
+        <base-canvas style="z-index: 100;" canvas-id="overlay-editor-canvas" width="512" height="512" :fill-color="fillColor" :is-overlay="isTrue"></base-canvas>
+        <base-canvas style="z-index: 99;" canvas-id="pixel-editor-canvas" width="512" height="512" :fill-color="fillColor"></base-canvas>
       </div>
       <div class="sidebar-right" style="padding: 15px;">
         <layers></layers>
@@ -34,6 +35,7 @@ export default {
   },
   data() {
     return {
+      isTrue: true,
       fillColor: '#000000'
     }
   }
@@ -74,6 +76,7 @@ export default {
 .default > .content-area > .editor > canvas {
   align-self: center;
   box-shadow: 0 15px 30px 0 rgba(0,0,0,.11), 0 5px 15px 0 rgba(0,0,0,.08);
+  position: absolute;
 }
 
 .default > .content-area > .sidebar-right {

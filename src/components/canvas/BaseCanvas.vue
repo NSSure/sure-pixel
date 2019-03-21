@@ -20,7 +20,12 @@ export default {
             required: true
         },
         fillColor: {
-            required: false
+            required: false,
+            default: 'green'
+        },
+        isOverlay: {
+            required: false,
+            default: false
         }
     },
     data() {
@@ -38,33 +43,38 @@ export default {
     mounted() {
         this.canvas = document.getElementById(this.canvasId);
         this.context = this.canvas.getContext('2d');
-        this.context.fillStyle = '#e7e7e7';
-        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.canvas.addEventListener('click', this.canvasClicked);
+        this.canvas.onmousemove = this.canvasHovered;
 
-        if (!this.displayOnly) {
-            this.canvas.addEventListener('click', this.canvasClicked);
-            this.canvas.onmousemove = this.canvasHovered;
+        if (this.isOverlay) {
+            this.canvas.style.pointerEvents = 'none';
         }
-        
+
         this.draw();
     },
     methods: {
         draw(event) {
-            this.drawBackgroundGrid();
-
-            for (let i = 0; i < this.dirtySquares.length; i++) {
-                let dirtySquare = this.dirtySquares[i];
-                this.context.fillStyle = this.fillColor;
-                this.context.clearRect(dirtySquare.column * 16, dirtySquare.row * 16, 16, 16);
-                this.context.beginPath();
-                this.context.fillRect(dirtySquare.column * 16, dirtySquare.row * 16, 16, 16);
-                this.context.closePath();
-
-                // Move the dirty square to the actual sprite data array.
-                this.spriteData.push(dirtySquare);
+            if (this.isOverlay) {
+                this.drawHoverSquare();
             }
+            else {
+                this.drawBackgroundGrid();
 
-            this.dirtySquares = [];
+                for (let i = 0; i < this.dirtySquares.length; i++) {
+                    let dirtySquare = this.dirtySquares[i];
+                    this.context.fillStyle = this.fillColor;
+                    this.context.clearRect(dirtySquare.column * 16, dirtySquare.row * 16, 16, 16);
+                    this.context.beginPath();
+                    this.context.fillRect(dirtySquare.column * 16, dirtySquare.row * 16, 16, 16);
+                    this.context.closePath();
+
+                    // Move the dirty square to the actual sprite data array.
+                    this.spriteData.push(dirtySquare);
+                }
+
+                this.dirtySquares = [];
+            }
+            
             requestAnimationFrame(this.draw);
         },
         drawBackgroundGrid() {
@@ -99,19 +109,31 @@ export default {
                 }
             }
         },
+        drawHoverSquare() {
+            if (this.canvasId === 'overlay-editor-canvas') {
+                if (this.$store.state.hoverPosition.x && this.$store.state.hoverPosition.y) {
+                    let square = this.getGridPositionByCoordinates(this.$store.state.hoverPosition);
+                    this.context.fillStyle = '#C0C0C0';
+                    this.context.fillRect(square.column * 16, square.row * 16, 16, 16);
+                }
+            }
+        },
+        clearHoverSquare() {
+            if (this.$store.state.hoverPosition.x && this.$store.state.hoverPosition.y) {
+                let square = this.getGridPositionByCoordinates(this.$store.state.hoverPosition);
+                this.context.clearRect(square.column * 16, square.row * 16, 16, 16);
+            }
+        },
         canvasClicked(event) {
             this.initialPosition = this.getMouseCoordinates(event);
-            this.dirtySquare = this.getGridPositionByCoordinates(this.initialPosition);
-            this.dirtySquare.fillColor = this.fillColor;
-            this.dirtySquares.push(this.dirtySquare);
+            let dirtySquare = this.getGridPositionByCoordinates(this.initialPosition);
+            dirtySquare.fillColor = this.fillColor;
+            this.dirtySquares.push(dirtySquare);
+            console.log(this.canvasId);
         },
         canvasHovered(event) {
-            console.log(event);
-            if (event) {
-                let mouseCoordinates = this.getMouseCoordinates(event);
-                this.context.fillStyle = '#C0C0C0';
-                this.context.fillRect(mouseCoordinates.x, mouseCoordinates.y, 16, 16);
-            }
+            this.clearHoverSquare();
+            this.$store.dispatch('setHoverPosition', this.getMouseCoordinates(event));
         },
         getGridPositionByCoordinates(mouseCoordinates) {
             // 16 is the px dimensions of each grid square.
